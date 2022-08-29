@@ -2,7 +2,7 @@
 
 ### Activate virtual environment
 `python3 -m venv myproject`
-`source myproject/bin/activate`
+<br>`source myproject/bin/activate`
 
 ### Install the dependencies
 `pip3 install -r requirements.txt`
