@@ -12,9 +12,9 @@ sqlite3 DataBase/test.db
 
 ### Set environment variables
 `cd myApp`
-`export FLASK_APP=app.py`
-`export FLASK_DEBUG=1` <!--In case of Development mode-->
-`export DEVELOPER_KEY=<API developer key to run this>`
+<br>`export FLASK_APP=app.py`
+<br>`export FLASK_DEBUG=1` <!--In case of Development mode-->
+<br>`export DEVELOPER_KEY=<API developer key to run this>`
 
 ### Run the application
 `flask run`
