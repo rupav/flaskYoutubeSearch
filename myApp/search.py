@@ -6,7 +6,6 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
 
-print('os.environ is', os.environ)
 DEVELOPER_KEY = os.environ.get('DEVELOPER_KEY')
 YOUTUBE_API_SERVICE_NAME = 'youtube'
 YOUTUBE_API_VERSION = 'v3'
@@ -15,7 +14,6 @@ def get_next_page_token(search_response):
   return search_response.get('nextPageToken', None)
 
 def youtube_search(options):
-  print('DEVELOPER_KEY is', DEVELOPER_KEY)
   youtube = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
     developerKey=DEVELOPER_KEY)
   # Call the search.list method to retrieve results matching the specified

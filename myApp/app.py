@@ -1,9 +1,11 @@
 from flask import Flask, request
+from apscheduler.schedulers.background import BackgroundScheduler
 from Models.video import db, connect_to_db, Video, Thumbnail
 import os, gc
 from datetime import datetime
 from search import youtube_search, get_next_page_token
 from utils.constants import YOUTUBE_SEARCH_REQUEST_PARAMS_VALUES, API_CALL_COUNT, YOUTUBE_VIDEO_URL_PREFIX
+from utils.scheduler import schedule
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.urandom(24)
@@ -37,7 +39,13 @@ def get_items(search_response):
 def store_in_db(items):
   try:
     for item in items:
-      video_row = Video(id = item['id'], published_at = datetime.fromisoformat(item['published_at'][:-1]), title = item['title'], desc = item['desc'])
+      if (Video.query.filter_by(vid = item['id']).first() != None):
+        # Since Youtube Search returns results in chronological reverse order, and we are saving the data in same order,
+        # if we find another video with same ID while updating the DB async, all next videos from Youtube search are already stored in our DB
+        print('Video is already stored in DB: ', item['id'])
+        db.session.commit()
+        return False
+      video_row = Video(vid = item['id'], published_at = datetime.fromisoformat(item['published_at'][:-1]), title = item['title'], desc = item['desc'])
       db.session.add(video_row)
       for key in item['thumbnails']:
         thumbnail_data = item['thumbnails'][key]
@@ -61,7 +69,6 @@ def save_videos_data():
     request_params['maxResults'] = YOUTUBE_SEARCH_REQUEST_PARAMS_VALUES['MAX_RESULTS']
     request_params['publishedAfter'] = YOUTUBE_SEARCH_REQUEST_PARAMS_VALUES['PUBLISHED_AFTER']
 
-    db.drop_all()
     db.create_all()
 
     next_page_token = None
@@ -86,11 +93,11 @@ def getVideoRespObj(videos_db_result):
   for video_row in videos_db_result:
     video_obj = {}
     video_obj['title'] = video_row.title
-    video_obj['url'] = YOUTUBE_VIDEO_URL_PREFIX + video_row.id
+    video_obj['url'] = YOUTUBE_VIDEO_URL_PREFIX + video_row.vid
     video_obj['desc'] = video_row.desc
     video_obj['publishedAt'] = video_row.published_at
     video_obj['thumbnails'] = []
-    thumbnails_db_result = Thumbnail.query.filter_by(id = video_row.id).all()
+    thumbnails_db_result = Thumbnail.query.filter_by(id = video_row.vid).all()
     for thumbnail_row in thumbnails_db_result:
       thumbnail_obj = {}
       thumbnail_obj['type'] = thumbnail_row.type
@@ -134,6 +141,9 @@ def search():
     videos_db_result = Video.query.filter(Video.desc.like("%" + search_by_desc + "%")).all()
     resp['videos'] = getVideoRespObj(videos_db_result)
   return resp
+
+# db.drop_all() # Clear the DB
+schedule(save_videos_data)
 
 if __name__ == "__main__":
   db.create_all()

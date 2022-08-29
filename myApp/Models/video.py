@@ -8,7 +8,8 @@ class Video(db.Model):
     """ Video Table """
     __tablename__ = "video"
 
-    id = db.Column(db.String(20), primary_key=True)
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    vid = db.Column(db.String(20))
     published_at = db.Column(db.DateTime, index=True)
     title = db.Column(db.String(80))
     desc = db.Column(db.String(255))
@@ -21,7 +22,7 @@ class Thumbnail(db.Model):
     """ Thumbnail Table """
     __tablename__ = "thumbnail"
 
-    id = db.Column(db.String(20), db.ForeignKey('video.id'), primary_key=True)
+    id = db.Column(db.String(20), db.ForeignKey('video.vid'), primary_key=True)
     type = db.Column(db.String(10), default="default", primary_key=True)
     url = db.Column(db.String(100))
     height = db.Column(db.Integer)
