@@ -49,7 +49,7 @@ def store_in_db(items):
       db.session.add(video_row)
       for key in item['thumbnails']:
         thumbnail_data = item['thumbnails'][key]
-        thumbnail_row = Thumbnail(id = item['id'], type = key,  url = thumbnail_data['url'], height = thumbnail_data['height'], width = thumbnail_data['width'])
+        thumbnail_row = Thumbnail(vid = item['id'], type = key,  url = thumbnail_data['url'], height = thumbnail_data['height'], width = thumbnail_data['width'])
         db.session.add(thumbnail_row)
     db.session.commit()
     return True
@@ -97,7 +97,7 @@ def getVideoRespObj(videos_db_result):
     video_obj['desc'] = video_row.desc
     video_obj['publishedAt'] = video_row.published_at
     video_obj['thumbnails'] = []
-    thumbnails_db_result = Thumbnail.query.filter_by(id = video_row.vid).all()
+    thumbnails_db_result = Thumbnail.query.filter_by(vid = video_row.vid).all()
     for thumbnail_row in thumbnails_db_result:
       thumbnail_obj = {}
       thumbnail_obj['type'] = thumbnail_row.type

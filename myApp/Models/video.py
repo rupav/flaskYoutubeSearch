@@ -22,8 +22,9 @@ class Thumbnail(db.Model):
     """ Thumbnail Table """
     __tablename__ = "thumbnail"
 
-    id = db.Column(db.String(20), db.ForeignKey('video.vid'), primary_key=True)
-    type = db.Column(db.String(10), default="default", primary_key=True)
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    vid = db.Column(db.String(20), db.ForeignKey('video.vid'))
+    type = db.Column(db.String(10), default="default")
     url = db.Column(db.String(100))
     height = db.Column(db.Integer)
     width = db.Column(db.Integer)
